@@ -1,0 +1,46 @@
+{
+  "type" : "FeatureCollection",
+  "crs" : {
+    "type" : "name",
+    "properties" : {
+      "name" : "EPSG:5514"
+    }
+  },
+  "features" : [{"type":"Feature","id":1,"geometry":
+  {"type":"Polygon","coordinates":
+    [
+      [
+        [35.0, 22.0],
+        [43.0, 82.0],
+        [348.0, 86.0],
+        [319.0, 60.0],
+        [35.0, 22.0]
+      ],
+      [
+        [39.0, 1.0],
+        [64.0, 8.0],
+        [94.0, 94.0],
+        [83.0, 49.0],
+        [39.0, 1.0]
+      ]
+    ]
+  },"properties":{"OBJECTID":1,"SHAPE_Length":177049.10149570747,"SHAPE_Area":1505540502.5677922}},
+  {"type":"Feature","id":1,
+  "geometry":{"type":"Polygon","coordinates":[
+    [
+      [335.0, 322.0],
+      [343.0, 382.0],
+      [648.0, 386.0],
+      [619.0, 360.0],
+      [335.0, 322.0]
+    ],
+    [
+      [339.0, 301.0],
+      [364.0, 38.0],
+      [394.0, 394.0],
+      [383.0, 349.0],
+      [339.0, 301.0]
+    ]
+  ]},
+  "properties":{"OBJECTID":2,"SHAPE_Length":1312312,"SHAPE_Area":133414}}]
+}
