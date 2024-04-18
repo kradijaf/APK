@@ -151,6 +151,7 @@ class UiMainWindow():
         if file != '':      # If a file name was chosen
             polygons = io.loadPolygons(file, self.canvas.getWidth(), self.canvas.getHeight())       # Load polygons and stretch them to current widget´s size
             if polygons:
+                self.canvas.setHighlighted()                                                        # remove list of keys of polygons to highlight
                 self.canvas.setPolygons(polygons)                                                   # update data
                 self.canvas.messageBox('Success', 'Input data loaded succesfully.')
             else:
@@ -182,6 +183,7 @@ class UiMainWindow():
 
         if len(polygons) > 0:
             text = 'Point inside polygon.'                                      # point inside
+            self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
             self.canvas.setPolygons(polygons)
         else:
             text = 'Point outside polygon(s).'      
@@ -210,6 +212,7 @@ class UiMainWindow():
                     text = text + relations[key] + ', '.join(val) + ', \n'
             text = text[ : -3] + '.'
             
+            self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
             self.canvas.setPolygons(polygons)
         else:
             text = 'Point outside polygon(s).'      
