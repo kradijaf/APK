@@ -181,11 +181,12 @@ class UiMainWindow():
         q = self.canvas.getQ()                                                  # get tested point
         polygons = a.rayCrossingAll(q, polygons)                                # run analysis
 
-        if len(polygons) > 0:
-            text = 'Point inside polygon.'                                      # point inside
+        if len(polygons) > 0:                                                   # point inside
             self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
             self.canvas.setPolygons(polygons)
+            text = 'Point inside polygon.' 
         else:
+            self.canvas.setHighlighted()
             text = 'Point outside polygon(s).'      
         self.canvas.messageBox('Ray Crossing´s result', text)
 
@@ -215,6 +216,7 @@ class UiMainWindow():
             self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
             self.canvas.setPolygons(polygons)
         else:
+            self.canvas.setHighlighted()
             text = 'Point outside polygon(s).'      
         self.canvas.messageBox('Winding Numbers´ result', text)
 
