@@ -11,7 +11,7 @@ class Algorithms:
     - Methods:
         - __init__(*args, **kwargs) - Creates the Epsilon value
         - rayCrossingAll(q: QPointF, inpt_pols : dict) -> dict - The cumulative function for calling Ray Crossing algorithm, 
-            preprocesses data, checks each point-polygon relation, returns polygons which include the point
+            preprocesses data, checks each point-polygon relation, returns polygon that includes the point
         - rayCrossingSingle(q: QPointF, pol: QPolygonF) -> bool - Runs Ray Crossing algorithm for a given polygon, 
             possible outputs: point inside/outside polygon
         - windingNumAll(q: QPointF, inpt_pols : dict) -> dict - The cumulative function for calling Winding Number algorithm
@@ -36,15 +36,15 @@ class Algorithms:
         polygons = self.selectInsideBox(q, polygons)    # Select the polygons
         polygons = self.setCCW_Orientation(polygons)    # Sets CCW orientation
 
-        otpt_pols = {}                                  # selected polygons dictionary
+        true_pols = {}                                  # selected polygons dictionary
         id = 1
 
         for pol in polygons.values():                   # Test each polygon
             if self.rayCrossingSingle(q, pol):          # Point in polygon
-                otpt_pols.update({id : pol})
+                true_pols.update({id : pol})
                 id += 1
 
-        return otpt_pols
+        return true_pols
 
     def rayCrossingSingle(self, q: QPointF, pol: QPolygonF):
         k = 0                                                                   # Initial number of intersections
@@ -73,17 +73,17 @@ class Algorithms:
         polygons = self.selectInsideBox(q, polygons)
         polygons = self.setCCW_Orientation(polygons)
 
-        otpt_pols = {}
+        true_pols = {}
         pos_meaning = {0 : [], 1 : [], 2 : []}                      # 0: inside the polygon, 1: on its edge, 2: is polygon´s vertex
         id = 1
 
         for pol in polygons.values():
             location, pnt_pos = self.windingNumSingle(q, pol)       # Outputs = true/false, location number
             if location:
-                otpt_pols.update({id : pol})
+                true_pols.update({id : pol})
                 pos_meaning[pnt_pos].append(str(id))         
                 id += 1
-        return otpt_pols, pos_meaning
+        return true_pols, pos_meaning
 
     def windingNumSingle(self, q: QPointF, pol: QPolygonF):
         sum = 0                                                     # Polygon´s winding number
@@ -133,7 +133,7 @@ class Algorithms:
     
     def updateMinMaxBox(self, polygons : dict):
         for key, pol in polygons.items():
-                polygons[key][2] = self.minMaxBox(pol[1])       
+            polygons[key][2] = self.minMaxBox(pol[1])       
         return polygons
     
     def selectInsideBox(self, q: QPointF, inpt_pols: QPolygonF):

@@ -10,7 +10,7 @@ class Draw(QWidget):
         - __init__(*args, **kwargs) - the constructor with default parameters necessary for Qt, sets up the framework for drawing on the widget
         - mousePressEvent(e: QMouseEvent) - Reacts to mouse click on widget resulting in drawing the tested point / a point to the polygon
         - setPolygons(polygons : dict) - Refreshes polygon database on input 
-        - setHighlighted(highlighted : list = []) - Refreshes the list of keys of polygons to highlight, Also used for clearing the list via the default value
+        - setHighlighted(highlighted : dict = {}) - Refreshes the dict of keys of polygons to highlight, Also used for clearing the list via the default value
         - paintEvent(e: QPaintEvent) - Refreshes the widget
         - switchDrawing() - Switches between drawing the tested point and adding a point to the polygon
         - messageBox(title: str, text : str) -  Creates a message box with given text
@@ -23,7 +23,7 @@ class Draw(QWidget):
         self.q = QPointF(10, 10)                # the tested point
         self.pol = [[], QPolygonF(), ()]        # The selected polygon: [real coordinates, Qt polygon data type, widget coordinates bounding box]      
         self.polygons = {1 : self.pol}          # All polygons in the framework
-        self.highlighted = []                   # IDs of polygons to highlight (point inside polygon / on its edge / is its vertex)
+        self.highlighted = {}                   # polygons to highlight (point inside polygon / on its edge / is its vertex)
 
         self.add_vertex = True                  # decides whether to draw the tested point / add a point to the polygon
 
@@ -35,7 +35,7 @@ class Draw(QWidget):
             p = QPointF(x, y)                  
             self.pol[1].append(p)      
             self.pol[0] = []                    # Delete real coordinates because the number of real and pixel coordinates can't match anymore
-            self.highlighted.clear()            # Clear the list of keys of polygons to highlight - the edited polygon could have been highlighted
+            self.highlighted.clear()            # Clear the dict of keys of polygons to highlight - the edited polygon could have been highlighted
         else:
             self.q.setX(x); self.q.setY(y)      # Shift tested point
 
@@ -50,19 +50,20 @@ class Draw(QWidget):
 
         self.repaint()    
 
-    def setHighlighted(self, highlighted : list = []):
+    def setHighlighted(self, highlighted : dict = {}):
         self.highlighted = highlighted
 
     def paintEvent(self, e: QPaintEvent):       # The method called by self.repaint() 
         qp = QPainter(self)                     # Create the painter
 
-        for key, pol in self.getPolygons().items():     # Draw each polygon
-            if key in self.highlighted:                 # The polygon has been tested positive for point location in it
-                qp.setPen(Qt.GlobalColor.red)           # Highlight the polygon with blue color
-                qp.setBrush(Qt.GlobalColor.blue)
-            else:                                       # Point not in polygon
-                qp.setPen(Qt.GlobalColor.red)           # Draw a yellow polygon 
-                qp.setBrush(Qt.GlobalColor.yellow)     
+        qp.setPen(Qt.GlobalColor.red)           # set polygon color to yellow with red outline
+        qp.setBrush(Qt.GlobalColor.yellow)   
+        for pol in self.polygons.values():      # Draw each negatively tested polygon
+            qp.drawPolygon(pol[1])
+
+        qp.setPen(Qt.GlobalColor.red)           # set polygon color to blue 
+        qp.setBrush(Qt.GlobalColor.blue)
+        for pol in self.highlighted.values():   # Draw each positively tested polygon
             qp.drawPolygon(pol[1])
 
         r = 6                                   # Point´s diameter
@@ -75,8 +76,8 @@ class Draw(QWidget):
         qp.setBrush(Qt.GlobalColor.darkBlue)
         qp.drawEllipse(int(self.q.x() - r), int(self.q.y() - r), 2 * r, 2 * r)
 
-        qp.end()                                # Delete painter object                             # Delete painter object
-        
+        qp.end()                                # Delete painter object                            
+
     def switchDrawing(self):
         if not self.getAddV() and len(self.getPolygons()) > 1:      # Disable editing polygons if more than one polygon exist, user can't choose which one to edit  
             self.messageBox('Operation unavailable', 'Can´t modify polygon when multiple polygons exist.')
@@ -91,7 +92,7 @@ class Draw(QWidget):
 
     def clearData(self):
         self.pol = [[], QPolygonF(), ()]            # clear polygon dict
-        self.highlighted.clear
+        self.highlighted.clear()
         self.setPolygons({1 : self.getPol()})        
 
         self.q.setX(10)       # shift point to upper left corner
@@ -118,3 +119,6 @@ class Draw(QWidget):
     
     def getPolygons(self):
         return self.polygons   
+    
+    def getHighlighted(self):
+        return self.highlighted  

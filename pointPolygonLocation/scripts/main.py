@@ -18,7 +18,7 @@ class UiMainWindow():
         - rayClick() -  Checks if data is usable, prepares it, calls Ray Tracing algorithm, refreshes saved data
         - windingClick() - Checks if data is usable, prepares it, calls Winding Number algorithm, refreshes saved data
         - rescaleClick() - Rescales current polygon data to the size of thewindow
-        - saveClick() - Saves polygon data to file chosen via a file dialog
+        - saveClick() - Saves polygon data to file chosen via a file dialog, saves positively tested data if those exist 
         - retranslateUi() - Method created by Qt, necessary for running the program
     '''
     def setupUi(self, main_window):
@@ -174,20 +174,21 @@ class UiMainWindow():
 
         a = Algorithms()
         for pol in polygons.values():
-            if len(pol[1]) < 3:                                                 # A polygon with less than # vertices ocured
+            if len(pol[1]) < 3:                                                 # A polygon with less than 3 vertices ocured
                 self.canvas.messageBox('Error', 'Not enough vertices in input polygon(s).')
                 return
 
         q = self.canvas.getQ()                                                  # get tested point
-        polygons = a.rayCrossingAll(q, polygons)                                # run analysis
+        selected = a.rayCrossingAll(q, polygons)                                # run analysis
 
-        if len(polygons) > 0:                                                   # point inside
-            self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
-            self.canvas.setPolygons(polygons)
+        if len(selected) > 0:                                                   # positive test result
+            self.canvas.setHighlighted(selected)                                # set positive result(s) to be highlighted
             text = 'Point inside polygon.' 
         else:
             self.canvas.setHighlighted()
-            text = 'Point outside polygon(s).'      
+            text = 'Point outside polygon(s).' 
+
+        self.canvas.repaint()
         self.canvas.messageBox('Ray Crossing´s result', text)
 
     def windingClick(self):
@@ -203,9 +204,9 @@ class UiMainWindow():
                 return
 
         q = self.canvas.getQ()      
-        polygons, pnt_pos = a.windingNumAll(q, polygons)     
+        selected, pnt_pos = a.windingNumAll(q, polygons)     
 
-        if len(polygons) > 0:
+        if len(selected) > 0:
             text = 'Point '                                                     # Create a text string for message window
             relations = {0 : 'inside polygon(s): ', 1 : 'on edge of polygon(s): ', 2 : 'is a vertex of polygon(s): '}
             for key, val in pnt_pos.items():
@@ -213,11 +214,12 @@ class UiMainWindow():
                     text = text + relations[key] + ', '.join(val) + ', \n'
             text = text[ : -3] + '.'
             
-            self.canvas.setHighlighted([key for key in polygons.keys()])        # highlight positively tested polygons
-            self.canvas.setPolygons(polygons)
+            self.canvas.setHighlighted(selected)                                # set positive result(s) to be highlighted
         else:
             self.canvas.setHighlighted()
-            text = 'Point outside polygon(s).'      
+            text = 'Point outside polygon(s).'  
+
+        self.canvas.repaint()    
         self.canvas.messageBox('Winding Numbers´ result', text)
 
     def pntCoordClick(self):
@@ -253,7 +255,10 @@ class UiMainWindow():
             self.canvas.messageBox('Error', 'No polygons to rescale.')               
 
     def saveClick(self):
-        polygons = self.canvas.getPolygons()
+        all = self.canvas.getPolygons()
+        highlighted = self.canvas.getHighlighted()
+        polygons = highlighted if len(highlighted) > 0 else all                 # save polygons selected by point location tests if any were selected, otherwise save all polygons
+
         if (len(polygons) == 1) and (len(polygons[1][1]) == 0):                 # No data to save
             self.canvas.messageBox('Error', 'Empty polygon.')
             return

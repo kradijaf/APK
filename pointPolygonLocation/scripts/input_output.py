@@ -14,10 +14,8 @@ class IO:
     - Methods:
         - readPnts(pnt_list : list) -> list - Creates list of doubles of coordinates
         - loadPolygons(file : str, width : int, height : int) -> dict - Loads the data from given file using readPnts() 
-            - uses given dimensions for Algorithms.sjtsk2Pixel() to rescale loaded data to widgets dimensions,
-            loads from geometry feature at all times
-            - Doesn't load multiple instances of the same point
-                - Causes issues when loading polygons with holes
+            - uses given dimensions for Algorithms.sjtsk2Pixel() to rescale loaded data to widgets dimensions
+            - Can load multiple instances of the same point
         - savePolygons(file : str, polygons : dict) -> bool - Saves polygons to given file
             - if real coordinates are saved in the framework, saves them in geometry, then pixel coordinates 
                 get saved into features
