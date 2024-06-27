@@ -17,7 +17,9 @@ class Draw(QWidget):
         - mousePressEvent(e:QMouseEvent): Reacts to mouse click on widget -> draws a point, with a random Z coordinate from <195; 1000> m interval
         - messageBox(title: str, text : str): Creates a message box with given text
         - paintEvent(e: QPaintEvent): Refreshes the widget
-            - draws point cloud, DT, contours, slope and aspect using shades of gray color ramp with RGB model 
+            - draws point cloud, DT, contours, slope and aspect
+                - draws slope using gray color ramp with RGB model 
+                - draws aspect using color spectrum with HSV model 
 
         - clear type functions:
             - both reset canvas to initial state
@@ -71,11 +73,8 @@ class Draw(QWidget):
         if self.viewAspect:                         
             qp.setPen(Qt.GlobalColor.gray)          #Set graphic attributes
             for t in self.dtm_aspect:               #Draw aspect
-                aspect = t.getAspect()              #Get aspect
-
-                mju = (1 / 2) * 255 / pi
-                col = int(255 - mju * (aspect + (pi / 2)))          # Convert aspect to color
-                color = QColor(col, col, col)      
+                aspect = degrees(t.getAspect() + pi)            #Get aspect, shift to <0; 2Pi> range, convert to degrees
+                color = QColor().fromHsvF(aspect / 360, 0.9, 0.95)      
 
                 qp.setBrush(color)
                 qp.drawPolygon(t.getVertices())     #Draw aspect
