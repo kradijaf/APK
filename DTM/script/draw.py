@@ -16,10 +16,10 @@ class Draw(QWidget):
             - creates empty list for each feature related to DT
         - mousePressEvent(e:QMouseEvent): Reacts to mouse click on widget -> draws a point, with a random Z coordinate from <195; 1000> m interval
         - messageBox(title: str, text : str): Creates a message box with given text
-        - paintEvent(e: QPaintEvent): Refreshes the widget
-            - draws point cloud, DT, contours, slope and aspect
-                - draws slope using gray color ramp with RGB model 
-                - draws aspect using color spectrum with HSV model 
+        - paintEvent(e: QPaintEvent): Refreshes the widget: draws point cloud, DT, contours, slope and aspect
+            - draws slope using continuous gray color ramp with RGB model 
+            - draws aspect using graduated color spectrum ramp with HSV model 
+        - aspectByInterval(aspect: float): transforms aspect value to match ESRI (2024), finds matching aspect interval, returns interval´s hue
 
         - clear type functions:
             - both reset canvas to initial state
@@ -71,10 +71,12 @@ class Draw(QWidget):
                 qp.drawPolygon(t.getVertices())     #Draw slope
 
         if self.viewAspect:                         
-            qp.setPen(Qt.GlobalColor.gray)          #Set graphic attributes
+            qp.setPen(Qt.GlobalColor.gray)          #Set graphic attributes          
+
             for t in self.dtm_aspect:               #Draw aspect
-                aspect = degrees(t.getAspect() + pi)            #Get aspect, shift to <0; 2Pi> range, convert to degrees
-                color = QColor().fromHsvF(aspect / 360, 0.9, 0.95)      
+                aspect = degrees(t.getAspect())            # convert aspect to degrees
+                hue = self.aspectByInterval(aspect)
+                color = QColor().fromHsvF(hue / 360, 0.9, 0.95)      
 
                 qp.setBrush(color)
                 qp.drawPolygon(t.getVertices())     #Draw aspect
@@ -100,6 +102,23 @@ class Draw(QWidget):
             qp.drawEllipse(int(p.x()-r), int(p.y()-r), 2*r, 2*r)
 
         qp.end()                                    #End drawing
+
+    def aspectByInterval(self, aspect: float):
+        aspect %= 360
+        aspect = 360 - aspect                       # shift and change aspect orientation to CW where (0; 1) = 0° (matches orientation as in ESRI (2024))
+
+        int_centers_colors = {0 : 0,
+                              45 : 39,
+                              90 : 60,
+                              135 : 120,
+                              180 : 180,
+                              225 : 201,
+                              270 : 240,
+                              315 : 300,
+                              360 : 0}              # aspect interval´s center : interval color´s hue (hue matches hues in ESRI (2024))
+        int_center = min(int_centers_colors.keys(), key = lambda x: abs(x - aspect))            # select center closest to aspect
+        
+        return int_centers_colors[int_center]       # return interval´s hue
 
     def clearAll(self) -> None:
         self.points.clear()                         #Clear points
